@@ -1,0 +1,5 @@
+A small google chrome extension to track different time schedules
+for a school.
+
+You set can set a bunch of schedules for different types of days
+via a google spreadsheet which this program then reads. 
