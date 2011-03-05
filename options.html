@@ -1,65 +1,6 @@
 <html>
 <script type="text/javascript" src="jquery.js"></script>   
-<script type="text/javascript">
-
-
-var url;
-var defaultsched;
-
-function goto_app() {
-    window.location.replace("main.html");
-}
-
-function save_default() {
-    // The url is already saved
-    var val = $("#selection").find('option:selected').text();
-    localStorage['default']=val;
-} 
-
-function makeSelectorandSaveurl(data) {
-    localStorage['url']=url;
-    if (!defaultsched)
-    {
-       localStorage['default']="web";
-    }
-    // remove old selections
-    $("#selection").empty();
-    var o2=$("<option selected=\"true\">web</option>");
-    $("#selection").append(o2);
-    // remove the old selected
-    // Now find the schedules and add them
-    var a = data.split('\n');
-    for (l in a) {
-      var line = a[l].split(',');
-      if (line[0] == "schedules") {
-         var schednames = line.slice(1);
-         for (l2 in schednames) {
-             var o=$("<option>"+schednames[l2]+"</option>");
-             $("#selection").append(o);
-          }
-    }
-   }
-}
-
-function save_url() {
-    url=$("#url").val();
-    // get the actual web page
-    $.get(url,makeSelectorandSaveurl);
-}
-
-function restore_options() {
-    // restore the url
-    url=localStorage['url'];
-    if (url) {
-      $("#url").attr('value',url);
-      // restore the default
-      defaultsched = localStorage['default'];
-    $.get(url,makeSelectorandSaveurl);
-    }
-}
-
-</script>
-<body onload="restore_options()")
+<script type="text/javascript" src="options.js"></script>
 
 <h1>School Schedule Configuration</h1>
 <br/>
@@ -84,7 +25,7 @@ It's link for the url box would be: https://spreadsheets.google.com/pub?key=0Ah8
 Spreadsheet url:<br/>
 <textarea rows="4" cols="40" id="url" name="url"></textarea>
 <br>
-<button onclick="save_url()">Save URL</button>
+<button id="save_url">Save URL</button>
 
 <br/>
 Default Schedule:
