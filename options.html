@@ -1,0 +1,106 @@
+<html>
+<script type="text/javascript" src="jquery.js"></script>   
+<script type="text/javascript">
+
+
+var url;
+var defaultsched;
+
+function goto_app() {
+    window.location.replace("main.html");
+}
+
+function save_default() {
+    // The url is already saved
+    var val = $("#selection").find('option:selected').text();
+    localStorage['default']=val;
+} 
+
+function makeSelectorandSaveurl(data) {
+    localStorage['url']=url;
+    if (!defaultsched)
+    {
+       localStorage['default']="web";
+    }
+    // remove old selections
+    $("#selection").empty();
+    var o2=$("<option selected=\"true\">web</option>");
+    $("#selection").append(o2);
+    // remove the old selected
+    // Now find the schedules and add them
+    var a = data.split('\n');
+    for (l in a) {
+      var line = a[l].split(',');
+      if (line[0] == "schedules") {
+         var schednames = line.slice(1);
+         for (l2 in schednames) {
+             var o=$("<option>"+schednames[l2]+"</option>");
+             $("#selection").append(o);
+          }
+    }
+   }
+}
+
+function save_url() {
+    url=$("#url").val();
+    // get the actual web page
+    $.get(url,makeSelectorandSaveurl);
+}
+
+function restore_options() {
+    // restore the url
+    url=localStorage['url'];
+    if (url) {
+      $("#url").attr('value',url);
+      // restore the default
+      defaultsched = localStorage['default'];
+    $.get(url,makeSelectorandSaveurl);
+    }
+}
+
+</script>
+<body onload="restore_options()")
+
+<h1>School Schedule Configuration</h1>
+<br/>
+This web app displays a typical school schedule timer. To configure you must publish a Google Spreadsheet describing your possible school sechedules.
+
+<ol>
+<li>First create a spreadsheet in the following format<br/>
+<img height=75% src="spreadsheet-example.png"></img>
+<br/>
+Note: labels are arbitrary strings, the time values are actual Google Spreadsheet time values and the start,stop, default and labels labels are case sensitive (that is they should be lower case).
+<li> Save the spreadsheet.
+<li> Click on share and publish the spreadsheet (select republish on changes).
+<li> Change the get a link option to "csv"
+<li> Copy the link supplied to this page and click update.
+<li> You can then select a default schedule below (or leave as web to use the spreadsheet default - note selecting a new schedule while viewing selects that schedule until either you change your selection or until the next day.
+</ol>
+<br/>
+You can check out a sample spreadsheet <a href=https://spreadsheets.google.com/ccc?key=0Ah8aQwlTtGjZdHYzVzV3Z0IzSkRfNXg3eUcxakdQdUE&hl=en>here</a><br/>
+<br/>
+It's link for the url box would be: https://spreadsheets.google.com/pub?key=0Ah8aQwlTtGjZdHYzVzV3Z0IzSkRfNXg3eUcxakdQdUE&output=csv
+<br/><br/>
+Spreadsheet url:<br/>
+<textarea rows="4" cols="40" id="url" name="url"></textarea>
+<br>
+<button onclick="save_url()">Save URL</button>
+
+<br/>
+Default Schedule:
+<select id=selection>
+<option>web</option>
+</select>
+<br/>
+<button onclick="save_default()" id="savedefault">Save Default</button>
+<button onclick="goto_app()" id="app">Go to schedule</button>
+
+<div id="default">
+</div>
+
+<div id="status"></div>
+</body>
+
+
+</html>
+

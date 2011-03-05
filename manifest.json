@@ -1,0 +1,18 @@
+{
+  "name": "School Schedule",
+  "description": "Daily Schedule for a school",
+  "version": "1.1.2",
+  "options_page": "options.html",
+  "app": {
+    "launch": {
+      "local_path": "main.html"
+    }
+  },
+  "icons": {
+    "16": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+  "https://spreadsheets.google.com/"
+  ]
+}
