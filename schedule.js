@@ -1,5 +1,10 @@
 
+/*-------------------- Class related stuff -------------------------*/
 
+/*
+ * Override the toLocaleString function in the javascript Date 
+ * class so that it returns am/pm time instead of 24hour.
+ */
 Date.prototype.toLocaleTimeString=function(){
     var hours=this.getHours();
     var minutes =this.getMinutes();
@@ -32,6 +37,9 @@ Date.prototype.toLocaleTimeString=function(){
  * 
  * Prototype for a schedule -- get's the raw data from spreadsheet
  * and a string. 
+ *
+ *  holds three parallel arrays indexed by "period"
+ *  labels, start, and stop 
  */
 function Schedule(name,data) {
     var hr,min,sec,tmp;
@@ -40,9 +48,13 @@ function Schedule(name,data) {
     this.labels = new Array();
     this.start = new Array();
     this.stop = new Array();
+
+
     var d_array = data.split('\n');
+
     for (l in  d_array) {
 	var a = d_array[l].split(',');
+	// if we're at a "labels" line for the schedule, parse it
 	if (a[0] == name && a[1] == "labels") {
 	    // process the labels
 	    a2 = a.slice(2);
@@ -50,6 +62,7 @@ function Schedule(name,data) {
 		this.labels.push(a2[item]);
 	    }
 	}
+	// if we're at a "start" line of the schedule, parse it
 	if (a[0] == name && a[1] == "start") {
 	    // process the starts
 	    a2 = a.slice(2); 
@@ -63,6 +76,7 @@ function Schedule(name,data) {
 		this.start.push(d);
 	    }
 	}
+	// if we're at the "stop" line of the schedule, parse it
 	if (a[0] == name && a[1] == "stop") {
 	    // process the stops
 	    a2 = a.slice(2); 
@@ -143,7 +157,7 @@ function updatePeriod() {
 
 /*----------------------------------------------------------------------*/
 /*
- * Redraws the schedule on the right hand side of the web page
+ * Recolors the schedule on the right hand side of the web page
  */
 function updateSchedule() {
     var d = new Date();
@@ -182,9 +196,10 @@ function updateDisplay() {
 	 
 /*----------------------------------------------------------------------*/
 /*
- * Build a table for the schedule
+ * Build a table for the schedule and places it on the right hand side
+ * of the web page
  * 
- * Later convert to 12 hour (am / pm) clock
+ * Later we will only have to update the colors as the period changes
  */
 function displaySchedule(sched) {
     var i;
@@ -241,9 +256,13 @@ function displayPeriod(sched) {
 /*
  * Global variables  
  */
+// current schedule
 var sched;
+// all the rawdata from the remote spreadsheet (or localStorage
 var rawdata;
+// All the schedules
 var schedules = new Array();
+// which one is the default
 var defaultsched;
 
 
@@ -281,11 +300,16 @@ function makePage(data) {
 
     var d = new Date();
     var today = localStorage['today'];
+    // If we stored today and it's still today
+    // we should use the stored schedule (revert back to 
+    // the default tomorrow)
     if (today && today == d.toLocaleDateString())
 	{
 	    defaultsched = localStorage['schedule'];
 	}
 
+    // If the select box changes, save todays date for the above
+    // if and change and redisplay the new schedule
     var s = $("<select id=\"selection\"></select>");
     s.change(function(){
 		 var val = $(this).find('option:selected').text();
@@ -296,11 +320,13 @@ function makePage(data) {
 		 var dd = new Date();
 		 localStorage['today']=dd.toLocaleDateString();
 	     })
+
+    // Make the schedule selection box
     for (l in schedules) {
 	var b = $("<option></option>");
 	b.text(schedules[l]);
         if (b.text()==defaultsched) {
-	    console.log(defaultsched);
+	    //	    console.log(defaultsched);
 	    b.attr('selected',true);
 	}
 	b.attr("id",schedules[l]);
